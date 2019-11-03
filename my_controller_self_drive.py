@@ -20,7 +20,7 @@ speedometer_image = None
 autodrive = True
 driver = Driver()
 basicTimeStep = int(driver.getBasicTimeStep())
-TIME_STEP = 50
+TIME_STEP = 100
 
 UNKNOWN = 99999.9
 FILTER_SIZE = 3
@@ -164,7 +164,7 @@ integral = 0.0
 
 sche = None
 preemption = False
-scheMethod = 'FIFO'
+scheMethod = 'Priority'
 
 if scheMethod == 'EDF':
     sche = EDF(preemption)
@@ -173,7 +173,7 @@ elif scheMethod == 'FIFO':
 elif scheMethod == 'Priority':
     sche = Priority(preemption)
 elif scheMethod == 'RoundRobin':
-    sche = RoundRobin(preemption)
+    sche = RoundRobin()
 
 
 
@@ -209,7 +209,7 @@ def set_steering_angle(wheel_angle):
         wheel_angle = 0.5
     elif wheel_angle < -0.5:
         wheel_angle = -0.5
-    print("wheel_angle: ", wheel_angle)
+    # print("wheel_angle: ", wheel_angle)
     driver.setSteeringAngle(wheel_angle)
 
 def compute_gps_speed():
@@ -266,6 +266,7 @@ class LidarTask(Task):
 
 class ComputeTask(Task):
     def completeWork(self):
+        print("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", self.pid)
         global PID_need_reset
         yellow_line_angle = filter_angle(process_camera_image(self.camera_image))
         obstacle_angle = UNKNOWN
@@ -303,23 +304,19 @@ class ComputeTask(Task):
                 PID_need_reset = True
             print("steer :", steer)
 
-            t = SetSteeringAngleTask(self.st, 1, 30, 0)
+            t = SetSteeringAngleTask(self.st, 1, 8, 1)
             t.steer = steer
             sche.addTask(t)
 
         elif math.fabs(yellow_line_angle - UNKNOWN) > ep:
             driver.setBrakeIntensity(0.0)
-            t = SetSteeringAngleTask(self.st, 1, 30, 0)
+            t = SetSteeringAngleTask(self.st, 1, 8, 1)
             t.steer = applyPID(yellow_line_angle)
             sche.addTask(t)
         else:
             driver.setBrakeIntensity(0.4)
             PID_need_reset = True
         return None
-
-
-
-
 
 if __name__ == '__main__':
 
@@ -357,29 +354,39 @@ if __name__ == '__main__':
     i = 0
     camera_image = None
     sick_data = None
+
     while driver.step() != -1:
         check_keyboard()
         if i % int(TIME_STEP / basicTimeStep) == 0:
-            print("-----------------------------------")
-            sche.addTask(CameraTask(i, 1, 40, 1))
-            sche.addTask(LidarTask(i, 1, 40, 1))
+
+            print("-----------------------------------", i)
+            sche.addTask(CameraTask(i, 2, 10, 1))
+            sche.addTask(LidarTask(i, 2, 10, 1))
             completedTask = sche.completedTasks()
+            print("completedTask: ", len(completedTask))
             for t in completedTask:
                 if isinstance(t, CameraTask):
+                    print("camera")
                     camera_image = t.result
                 if isinstance(t, LidarTask):
+                    print("sick_data")
                     sick_data = t.result
+            # camera_image = camera.getImage()
+            # sick_data = collision_avoidance.getRangeImage()
 
             if camera_image and sick_data:
-                t = ComputeTask(i, 1, 15, 0)
+                print("################################    ComputeTask")
+                t = ComputeTask(i, 1, 5, 0)
                 t.camera_image = camera_image
                 t.sick_data = sick_data
                 t.st = i
                 sche.addTask(t)
-            if gps:
-                sche.addTask(ComputeGPSSpeedTask(i, 2, 50, 1))
-            if display:
-                sche.addTask(UpdateDisplayTask(i, 2, 60, 2))
+
+            if i % (int(TIME_STEP / basicTimeStep) * 2) == 0:
+                if gps:
+                    sche.addTask(ComputeGPSSpeedTask(i, 3, 20, 3))
+                if display:
+                    sche.addTask(UpdateDisplayTask(i, 3, 20, 4))
 
         i += 1
         sche.work(1)

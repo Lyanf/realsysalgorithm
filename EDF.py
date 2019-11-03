@@ -13,6 +13,8 @@ class EDF(Scheduler):
             for task in self.tasks:
                 if remainedTime == 0:
                     break
+                if task.isCompleted():
+                    continue
                 duration = 0
                 if remainedTime > task.needTime:
                     duration = task.needTime
@@ -49,6 +51,8 @@ class EDF(Scheduler):
             for task in self.tasks:
                 if remainedTime == 0:
                     break
+                if task.isCompleted():
+                    continue
                 duration = 0
                 if remainedTime > task.needTime:
                     duration = task.needTime
