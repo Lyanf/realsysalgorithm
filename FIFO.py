@@ -8,7 +8,6 @@ class FIFO(Scheduler):
     def work(self, time):
         remainedTime = time
         for task in self.tasks:
-            # 如果已经不剩时间可以分配了，则退出
             if remainedTime == 0:
                 break
 

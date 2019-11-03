@@ -6,13 +6,14 @@ class ProvideNeedlessTime(Exception):
 
 class Task():
     def __init__(self, arrivalTime, executeTime, deadline, priority=0):
-        super(Task, self).__init__()
         self.arrivalTime = arrivalTime
         self.executeTime = executeTime
         self.deadline = deadline
         self.priority = priority
         self.needTime = executeTime
         self.haveDone = 0
+        self.isExtracted = False
+        self.result = None
 
     def setPid(self,pid):
         self.pid = pid
@@ -27,14 +28,14 @@ class Task():
         self.haveDone = self.haveDone + getTime
         self.needTime = self.needTime - getTime
         if self.isCompleted():
-            self.completeWork()
+            self.result = self.completeWork()
 
     @abstractmethod
     def completeWork(self):
         pass
 
 
-class Scheduler():
+class Scheduler(object):
     pidIndex = 0
     def __init__(self):
         self.tasks = []
@@ -44,6 +45,13 @@ class Scheduler():
         task.setPid(self.pidIndex)
         self.pidIndex = self.pidIndex+1
         self.tasks.append(task)
+
+    def completedTasks(self):
+        completed_tasks = [t for t in self.tasks if t.isCompleted() and not t.isExtracted]
+        for t in completed_tasks:
+            t.isExtracted = True
+        return completed_tasks
+
     @abstractmethod
     def work(self,time):
         pass
@@ -66,4 +74,4 @@ class TurnLeft(Task):
         super(TurnLeft, self).__init__(arrivalTime,executeTime,deadline)
 
     def completeWork(self):
-        print('完成了一个TurnLeft')
+        pass
