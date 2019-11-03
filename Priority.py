@@ -21,9 +21,9 @@ class Priority(Scheduler):
                 task.work(duration)
                 remainedTime = remainedTime - duration
                 if len(self.results) == 0:
-                    self.results.append(SchedulResult(task.arrivalTime, duration))
+                    self.results.append(SchedulResult(task.pid,task.arrivalTime, duration))
                 else:
-                    self.results.append(SchedulResult(self.results[-1].endTime, duration))
+                    self.results.append(SchedulResult(task.pid,self.results[-1].endTime, duration))
 
 
         else:
@@ -42,9 +42,9 @@ class Priority(Scheduler):
                     remainedTime = remainedTime - duration
 
                     if len(self.results) == 0:
-                        self.results.append(SchedulResult(task.arrivalTime, duration))
+                        self.results.append(SchedulResult(task.pid,task.arrivalTime, duration))
                     else:
-                        self.results.append(SchedulResult(self.results[-1].endTime, duration))
+                        self.results.append(SchedulResult(task.pid,self.results[-1].endTime, duration))
                     break
 
             # 如果还有时间的话，再让优先级最高的程序先上
@@ -60,6 +60,6 @@ class Priority(Scheduler):
                 task.work(duration)
                 remainedTime = remainedTime - duration
                 if len(self.results) == 0:
-                    self.results.append(SchedulResult(task.arrivalTime, duration))
+                    self.results.append(SchedulResult(task.pid,task.arrivalTime, duration))
                 else:
-                    self.results.append(SchedulResult(self.results[-1].endTime, duration))
+                    self.results.append(SchedulResult(task.pid,self.results[-1].endTime, duration))

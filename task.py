@@ -1,10 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 
 class ProvideNeedlessTime(Exception):
     pass
 
-class Task(ABC):
+class Task():
     def __init__(self, arrivalTime, executeTime, deadline, priority=0):
         super(Task, self).__init__()
         self.arrivalTime = arrivalTime
@@ -34,10 +34,9 @@ class Task(ABC):
         pass
 
 
-class Scheduler(ABC):
+class Scheduler():
     pidIndex = 0
     def __init__(self):
-        super(Scheduler, self).__init__()
         self.tasks = []
         self.results = []
 
