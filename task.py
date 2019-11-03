@@ -12,13 +12,15 @@ class Task(ABC):
         self.deadline = deadline
         self.priority = priority
         self.needTime = executeTime
-
         self.haveDone = 0
 
-    def isCompleted(self) -> bool:
+    def setPid(self,pid):
+        self.pid = pid
+
+    def isCompleted(self):
         return self.executeTime == self.haveDone
 
-    def work(self, getTime) -> None:
+    def work(self, getTime):
         if getTime > self.needTime:
             raise ProvideNeedlessTime
 
@@ -33,12 +35,15 @@ class Task(ABC):
 
 
 class Scheduler(ABC):
+    pidIndex = 0
     def __init__(self):
         super(Scheduler, self).__init__()
-        self.tasks:[Task] = [Task]
-        self.results:[SchedulResult] = [SchedulResult]
+        self.tasks = []
+        self.results = []
 
-    def addTask(self,task:Task):
+    def addTask(self,task):
+        task.setPid(self.pidIndex)
+        self.pidIndex = self.pidIndex+1
         self.tasks.append(task)
     @abstractmethod
     def work(self,time):
@@ -49,11 +54,17 @@ class Scheduler(ABC):
     #     pass
 
 class SchedulResult:
-    def __init__(self,startTime,duration):
+    def __init__(self,pid,startTime,duration):
         self.startTime = startTime
         self.duration = duration
         self.endTime = startTime + duration
+        self.pid = pid
+    def __str__(self):
+        return "pid:%s  startTime:%s  duration:%s  endTime:%s"%(self.pid,self.startTime,self.duration,self.endTime)
 
-class TestTask(Task):
+class TurnLeft(Task):
+    def __init__(self, arrivalTime, executeTime, deadline, priority=0):
+        super(TurnLeft, self).__init__(arrivalTime,executeTime,deadline)
+
     def completeWork(self):
-        pass
+        print('完成了一个TurnLeft')

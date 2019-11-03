@@ -4,3 +4,5 @@
 !Priority.py
 !RoundRobin.py
 !task.py
+!.gitignore
+!scheduletest.py

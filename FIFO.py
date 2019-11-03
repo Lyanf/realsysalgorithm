@@ -22,6 +22,6 @@ class FIFO(Scheduler):
                 remainedTime = remainedTime - duration
 
                 if len(self.results) == 0:
-                    self.results.append(SchedulResult(task.arrivalTime, duration))
+                    self.results.append(SchedulResult(task.pid,task.arrivalTime, duration))
                 else:
-                    self.results.append(SchedulResult(self.results[-1].endTime, duration))
+                    self.results.append(SchedulResult(task.pid,self.results[-1].endTime, duration))
